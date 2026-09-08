@@ -1,0 +1,6 @@
+{
+  "name": "GenericMed",
+  "description": "Online Generic Medicine Price Comparison & Purchase Platform with Live Dispensary Fulfillment",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

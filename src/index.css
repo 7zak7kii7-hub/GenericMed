@@ -1,0 +1,227 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --primary: #005048;
+    --primary-container: #006a60;
+    --brand-deep: #0B4F48;
+    --secondary: #006b5a;
+    --secondary-container: #76f5d9;
+    --on-secondary-container: #00705e;
+    --surface: #f8f9ff;
+    --surface-card: #FFFFFF;
+    --surface-subtle: #F1F5F9;
+    --surface-canvas: #F8FAFC;
+    --surface-container-lowest: #ffffff;
+    --surface-container-low: #eff4ff;
+    --surface-container: #e5eeff;
+    --surface-container-high: #dce9ff;
+    --status-success-bg: #ECFDF5;
+    --status-success-text: #065F46;
+    --status-warning-bg: #FFFBEB;
+    --status-warning-text: #92400E;
+    --status-danger-bg: #FEF2F2;
+    --status-danger-text: #991B1B;
+    --status-info-bg: #F0FDFA;
+    --status-info-text: #115E59;
+    --text-primary: #0F172A;
+    --text-secondary: #334155;
+    --text-muted: #64748B;
+    --border-subtle: #E2E8F0;
+    --border-strong: #CBD5E1;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--text-primary);
+    background-color: var(--surface);
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 20px;
+  line-height: 1;
+  display: inline-block;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'liga';
+}
+
+/* Custom Typography Utility Classes */
+.font-headline-lg {
+  font-family: 'Inter', sans-serif;
+  font-size: 20px;
+  line-height: 28px;
+  letter-spacing: -0.015em;
+  font-weight: 600;
+}
+
+.font-headline-sm {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+
+.font-body-lg {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 400;
+}
+
+.font-body-md {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 400;
+}
+
+.font-body-sm {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.005em;
+  font-weight: 400;
+}
+
+.font-label-md {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: 0.01em;
+  font-weight: 500;
+}
+
+.font-label-sm {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.03em;
+  font-weight: 600;
+}
+
+.font-code-tabular {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "cv05" 1, "cv11" 1;
+}
+
+.font-display-sm {
+  font-family: 'Inter', sans-serif;
+  font-size: 24px;
+  line-height: 32px;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+.font-display-lg {
+  font-family: 'Inter', sans-serif;
+  font-size: 32px;
+  line-height: 40px;
+  letter-spacing: -0.025em;
+  font-weight: 700;
+}
+
+/* Custom color utility classes matching Tailwind config from mockups */
+.bg-primary { background-color: #005048; }
+.text-primary { color: #005048; }
+.border-primary { border-color: #005048; }
+
+.bg-primary-container { background-color: #006a60; }
+.text-primary-container { color: #006a60; }
+
+.bg-primary-fixed { background-color: #9ff2e4; }
+.text-on-primary-fixed { color: #00201c; }
+.text-on-primary { color: #ffffff; }
+
+.bg-brand-deep { background-color: #0B4F48; }
+
+.bg-secondary { background-color: #006b5a; }
+.text-secondary { color: #006b5a; }
+.bg-secondary-container { background-color: #76f5d9; }
+.text-on-secondary-container { color: #00705e; }
+.text-secondary-fixed { color: #79f8dc; }
+
+.bg-surface { background-color: #f8f9ff; }
+.bg-surface-card { background-color: #ffffff; }
+.bg-surface-subtle { background-color: #F1F5F9; }
+.bg-surface-canvas { background-color: #F8FAFC; }
+.bg-surface-container-lowest { background-color: #ffffff; }
+.bg-surface-container-low { background-color: #eff4ff; }
+.bg-surface-container { background-color: #e5eeff; }
+.bg-surface-container-high { background-color: #dce9ff; }
+
+.text-text-primary { color: #0F172A; }
+.text-text-secondary { color: #334155; }
+.text-text-muted { color: #64748B; }
+
+.bg-status-success-bg { background-color: #ECFDF5; }
+.text-status-success-text { color: #065F46; }
+.border-status-success-border { border-color: #A7F3D0; }
+
+.bg-status-warning-bg { background-color: #FFFBEB; }
+.text-status-warning-text { color: #92400E; }
+.border-status-warning-border { border-color: #FDE68A; }
+
+.bg-status-danger-bg { background-color: #FEF2F2; }
+.text-status-danger-text { color: #991B1B; }
+.border-status-danger-border { border-color: #FECACA; }
+
+.bg-status-info-bg { background-color: #F0FDFA; }
+.text-status-info-text { color: #115E59; }
+.border-status-info-border { border-color: #99F6E4; }
+
+.border-border-subtle { border-color: #E2E8F0; }
+.border-border-strong { border-color: #CBD5E1; }
+
+.bg-inverse-surface { background-color: #213145; }
+.text-inverse-on-surface { color: #eaf1ff; }
+
+/* Safe padding utilities */
+.pb-safe { padding-bottom: max(env(safe-area-inset-bottom, 0px), 12px); }
+.pt-safe { padding-top: max(env(safe-area-inset-top, 0px), 0px); }
+
+/* Spacing tokens */
+.gap-space-2xs { gap: 0.125rem; }
+.gap-space-xs { gap: 0.25rem; }
+.gap-space-sm { gap: 0.5rem; }
+.gap-space-md { gap: 0.75rem; }
+.gap-space-base { gap: 1rem; }
+.gap-space-lg { gap: 1.25rem; }
+
+.p-space-2xs { padding: 0.125rem; }
+.p-space-xs { padding: 0.25rem; }
+.p-space-sm { padding: 0.5rem; }
+.p-space-md { padding: 0.75rem; }
+.p-space-base { padding: 1rem; }
+.p-space-lg { padding: 1.25rem; }
+
+.px-space-xs { padding-left: 0.25rem; padding-right: 0.25rem; }
+.px-space-sm { padding-left: 0.5rem; padding-right: 0.5rem; }
+.px-space-base { padding-left: 1rem; padding-right: 1rem; }
+.px-space-lg { padding-left: 1.25rem; padding-right: 1.25rem; }
+
+.py-space-2xs { padding-top: 0.125rem; padding-bottom: 0.125rem; }
+.py-space-xs { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+.py-space-sm { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+.py-space-md { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+.py-space-base { padding-top: 1rem; padding-bottom: 1rem; }
+
+.mt-space-2xs { margin-top: 0.125rem; }
+.mt-space-xs { margin-top: 0.25rem; }
+.mt-space-sm { margin-top: 0.5rem; }
+.mt-space-md { margin-top: 0.75rem; }
+.mt-space-base { margin-top: 1rem; }
