@@ -7,20 +7,106 @@ interface MedicineDetailScreenProps {
   onOpenBioModal: () => void;
   showToastMessage: (msg: string) => void;
   onNavigateToCart: () => void;
+  selectedMoleculeId?: string;
+  onNavigateBack?: () => void;
 }
+
+const getMoleculeData = (id?: string) => {
+  const query = (id || '').toLowerCase();
+  if (query.includes('comp-2') || query.includes('amox') || query.includes('clav') || query.includes('augmentin')) {
+    return {
+      formulaCode: 'AMOX-CLAV-625',
+      name: 'Amoxicillin 500mg + Clavulanic Acid 125mg',
+      category: 'ANTIBIOTIC • IP/BP GRADE',
+      referenceBrands: ['Augmentin 625', 'Moxikind-CV 625'],
+      basePrice: 48.0,
+      baseMrp: 192.0,
+      tabletsPerStrip: 10,
+      packText: 'Strip of 10 Tablets',
+      dissolutionParity: '99.4%',
+      bioequivalence: '100% Bio-identical molecule composition',
+      imageUrl:
+        'https://lh3.googleusercontent.com/aida-public/AB6AXuA0P1UtMCeQiNx2w-bcWeCUFFpzLF24iIe3Cp14GAZ5EB13ymClblYwtJWU7ByhbebjjxryBDdp4OmJXRHka7igtzWaMWtXv9me9YlSXChLWYZfW_-jsUyR8HjK1C0LGpXemLMNThRUpKBpKU7eVMukONcRCHPBm7Kf626g4YQgmyLof3wdsPQ611VG3SgU4zHJmczu85b5JETLuuRKe8vqJ9obmmoClxrwGcEvtgTr5P-8gwiWM459Ow',
+    };
+  }
+  if (query.includes('comp-3') || query.includes('ator') || query.includes('lipitor')) {
+    return {
+      formulaCode: 'ATOR-20-IP',
+      name: 'Atorvastatin Calcium 20mg IP',
+      category: 'CARDIOVASCULAR • LIPID REGULATOR',
+      referenceBrands: ['Lipitor 20mg', 'Atorva 20'],
+      basePrice: 28.0,
+      baseMrp: 180.0,
+      tabletsPerStrip: 10,
+      packText: 'Blister of 10 Tablets',
+      dissolutionParity: '99.8%',
+      bioequivalence: 'USP & IP Dissolution Verified',
+      imageUrl:
+        'https://lh3.googleusercontent.com/aida-public/AB6AXuC2ox6R8_W0rkSEFboR7B4tYoVqdnvB8FaadBVFLBDVxeDwjdsIQhrdgaYARQkZDYIzVuyDAvc5rUufa5vcTZfYjsHh2aW17Tz2mbfru9TpYH8Gatk1Xq44HMG6xpxskqcZyRB25nTmFCVdRmWn0b8YbuzOQrEjvPQxsWgLB2MKXuOOKwfGISB0S044qiizjYpE8c_36lRYyuPGUsekFiCPJChOqE0d_ZuzyRRqzrzWCX5AcJUi2SIMUw',
+    };
+  }
+  if (query.includes('comp-4') || query.includes('metformin') || query.includes('glycomet')) {
+    return {
+      formulaCode: 'MET-500-SR',
+      name: 'Metformin HCl Sustained Release 500mg',
+      category: 'ANTIDIABETIC • BIGUANIDE IP',
+      referenceBrands: ['Glycomet 500 SR', 'Obimet 500'],
+      basePrice: 14.0,
+      baseMrp: 45.0,
+      tabletsPerStrip: 20,
+      packText: 'Strip of 20 Tablets',
+      dissolutionParity: '99.6%',
+      bioequivalence: 'CDSCO Bioequivalence Cleared',
+      imageUrl:
+        'https://lh3.googleusercontent.com/aida-public/AB6AXuA0P1UtMCeQiNx2w-bcWeCUFFpzLF24iIe3Cp14GAZ5EB13ymClblYwtJWU7ByhbebjjxryBDdp4OmJXRHka7igtzWaMWtXv9me9YlSXChLWYZfW_-jsUyR8HjK1C0LGpXemLMNThRUpKBpKU7eVMukONcRCHPBm7Kf626g4YQgmyLof3wdsPQ611VG3SgU4zHJmczu85b5JETLuuRKe8vqJ9obmmoClxrwGcEvtgTr5P-8gwiWM459Ow',
+    };
+  }
+  // Default Paracetamol
+  return {
+    formulaCode: 'PARA-650-IP',
+    name: 'Paracetamol 650mg + Caffeine 50mg',
+    category: 'ANALGESIC • IP GRADE',
+    referenceBrands: ['Dolo-650', 'Calpol 650'],
+    basePrice: 21.0,
+    baseMrp: 54.0,
+    tabletsPerStrip: 15,
+    packText: 'Strip of 15 Tablets',
+    dissolutionParity: '99.7%',
+    bioequivalence: '100% Active Drug Parity',
+    imageUrl:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuA0P1UtMCeQiNx2w-bcWeCUFFpzLF24iIe3Cp14GAZ5EB13ymClblYwtJWU7ByhbebjjxryBDdp4OmJXRHka7igtzWaMWtXv9me9YlSXChLWYZfW_-jsUyR8HjK1C0LGpXemLMNThRUpKBpKU7eVMukONcRCHPBm7Kf626g4YQgmyLof3wdsPQ611VG3SgU4zHJmczu85b5JETLuuRKe8vqJ9obmmoClxrwGcEvtgTr5P-8gwiWM459Ow',
+  };
+};
 
 export const MedicineDetailScreen: React.FC<MedicineDetailScreenProps> = ({
   onAddToCart,
   onOpenBioModal,
   showToastMessage,
   onNavigateToCart,
+  selectedMoleculeId = 'CAN-MOL-1049',
+  onNavigateBack,
 }) => {
+  const currentMol = getMoleculeData(selectedMoleculeId);
   const [normalizationMode, setNormalizationMode] = useState<'tab' | 'strip'>('tab');
   const [isInspectorOpen, setIsInspectorOpen] = useState(false);
   const [selectedOfferId, setSelectedOfferId] = useState<string>('offer-apollo');
   const [isAddedAnimation, setIsAddedAnimation] = useState(false);
 
-  const selectedOffer = MOLECULE_OFFERS.find((o) => o.id === selectedOfferId) || MOLECULE_OFFERS[0];
+  // Dynamically compute offer prices relative to the active molecule
+  const dynamicOffers = MOLECULE_OFFERS.map((offer, idx) => {
+    const multiplier = idx === 0 ? 1.0 : idx === 1 ? 1.09 : 1.15;
+    const price = Math.round(currentMol.basePrice * multiplier);
+    const mrp = currentMol.baseMrp;
+    return {
+      ...offer,
+      pricePerStrip: price,
+      mrpPerStrip: mrp,
+      tabletsPerStrip: currentMol.tabletsPerStrip,
+      savingsAmount: mrp - price,
+    };
+  });
+
+  const selectedOffer = dynamicOffers.find((o) => o.id === selectedOfferId) || dynamicOffers[0];
 
   const handleToggleMode = (mode: 'tab' | 'strip') => {
     setNormalizationMode(mode);
@@ -40,20 +126,20 @@ export const MedicineDetailScreen: React.FC<MedicineDetailScreenProps> = ({
     setIsAddedAnimation(true);
     const cartItem: CartItem = {
       id: `cart-mol-${selectedOffer.id}-${Date.now()}`,
-      name: 'Paracetamol 650mg + Caffeine 50mg',
-      category: 'ANALGESIC • IP GRADE',
+      name: currentMol.name,
+      category: currentMol.category,
       pharmacyName: selectedOffer.pharmacyName,
       price: selectedOffer.pricePerStrip,
       mrp: selectedOffer.mrpPerStrip,
       pricePerUnit: `₹${(selectedOffer.pricePerStrip / selectedOffer.tabletsPerStrip).toFixed(2)} / tab`,
       quantity: 1,
-      packDetail: `Strip of ${selectedOffer.tabletsPerStrip} Tabs`,
-      batchNumber: 'Batch #AP-9921',
-      savingsAmount: selectedOffer.savingsAmount || 33.0,
-      imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA0P1UtMCeQiNx2w-bcWeCUFFpzLF24iIe3Cp14GAZ5EB13ymClblYwtJWU7ByhbebjjxryBDdp4OmJXRHka7igtzWaMWtXv9me9YlSXChLWYZfW_-jsUyR8HjK1C0LGpXemLMNThRUpKBpKU7eVMukONcRCHPBm7Kf626g4YQgmyLof3wdsPQ611VG3SgU4zHJmczu85b5JETLuuRKe8vqJ9obmmoClxrwGcEvtgTr5P-8gwiWM459Ow',
+      packDetail: currentMol.packText,
+      batchNumber: `Batch #AP-${Math.floor(1000 + Math.random() * 9000)}`,
+      savingsAmount: selectedOffer.savingsAmount || (selectedOffer.mrpPerStrip - selectedOffer.pricePerStrip),
+      imageUrl: currentMol.imageUrl,
     };
     onAddToCart(cartItem);
-    showToastMessage(`${selectedOffer.pharmacyName} offer added to healthcare cart`);
+    showToastMessage(`${selectedOffer.pharmacyName} offer for ${currentMol.name} added to healthcare cart`);
     setTimeout(() => {
       setIsAddedAnimation(false);
     }, 1800);
@@ -70,10 +156,19 @@ export const MedicineDetailScreen: React.FC<MedicineDetailScreenProps> = ({
         <div className="bg-surface-container-lowest p-space-base rounded-xl shadow-sm flex flex-col gap-space-xs border border-border-subtle">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-space-xs">
+              {onNavigateBack && (
+                <button
+                  onClick={onNavigateBack}
+                  className="p-1.5 -ml-1 rounded-lg text-text-secondary hover:bg-surface-subtle hover:text-primary active:scale-95 transition-all flex items-center"
+                  title="Back to Comparisons"
+                >
+                  <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+                </button>
+              )}
               <span className="px-space-xs py-0.5 rounded-full bg-status-info-bg text-status-info-text font-code-tabular text-[11px] font-medium tracking-tight border border-status-info-border">
-                CAN-MOL-1049
+                {currentMol.formulaCode}
               </span>
-              <span className="px-space-xs py-0.5 rounded-full bg-status-success-bg text-status-success-text font-label-sm text-label-sm flex items-center gap-1 border border-status-success-border">
+              <span className="px-space-xs py-0.5 rounded-full bg-status-success-bg text-status-success-text font-label-sm text-[11px] font-bold flex items-center gap-1 border border-status-success-border">
                 <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span>
                 CDSCO IP Standard
               </span>
@@ -88,17 +183,19 @@ export const MedicineDetailScreen: React.FC<MedicineDetailScreenProps> = ({
           </div>
 
           <h2 className="font-headline-lg text-headline-lg text-text-primary tracking-tight font-bold pt-1">
-            Paracetamol 650mg + Caffeine 50mg
+            {currentMol.name}
           </h2>
 
           <div className="flex items-center gap-space-xs flex-wrap">
             <span className="font-label-sm text-label-sm text-text-muted">Bioequivalent reference:</span>
-            <span className="font-label-sm text-label-sm text-primary font-bold bg-status-info-bg px-space-xs py-0.5 rounded border border-status-info-border">
-              Dolo-650
-            </span>
-            <span className="font-label-sm text-label-sm text-primary font-bold bg-status-info-bg px-space-xs py-0.5 rounded border border-status-info-border">
-              Calpol 650
-            </span>
+            {currentMol.referenceBrands.map((brand) => (
+              <span
+                key={brand}
+                className="font-label-sm text-label-sm text-primary font-bold bg-status-info-bg px-space-xs py-0.5 rounded border border-status-info-border"
+              >
+                {brand}
+              </span>
+            ))}
           </div>
 
           <div className="flex items-center gap-space-sm mt-space-2xs pt-space-xs text-text-muted font-body-sm text-body-sm border-t border-border-subtle/50">
@@ -106,7 +203,7 @@ export const MedicineDetailScreen: React.FC<MedicineDetailScreenProps> = ({
               <span className="material-symbols-outlined text-[15px] text-secondary font-bold">
                 verified_user
               </span>
-              100% Active Drug Parity
+              {currentMol.bioequivalence}
             </span>
             <span>•</span>
             <span className="flex items-center gap-1">
@@ -379,10 +476,12 @@ export const MedicineDetailScreen: React.FC<MedicineDetailScreenProps> = ({
             </div>
             <div className="text-right">
               <span className="font-headline-lg text-headline-lg font-bold text-text-primary">
-                {normalizationMode === 'tab' ? '₹1.56' : '₹23.50'}
+                {normalizationMode === 'tab'
+                  ? `₹${(dynamicOffers[1].pricePerStrip / dynamicOffers[1].tabletsPerStrip).toFixed(2)}`
+                  : `₹${dynamicOffers[1].pricePerStrip.toFixed(2)}`}
               </span>
               <p className="font-code-tabular text-[11px] text-text-muted">
-                ₹1.56/tab • 15 pack
+                ₹{(dynamicOffers[1].pricePerStrip / dynamicOffers[1].tabletsPerStrip).toFixed(2)}/tab • {dynamicOffers[1].tabletsPerStrip} pack
               </p>
             </div>
           </div>
@@ -395,7 +494,7 @@ export const MedicineDetailScreen: React.FC<MedicineDetailScreenProps> = ({
               Delivery in 45 mins
             </span>
             <button
-              onClick={() => handleSelectOffer(MOLECULE_OFFERS[1])}
+              onClick={() => handleSelectOffer(dynamicOffers[1])}
               className={`px-space-sm py-1 rounded-lg font-label-sm text-label-sm font-semibold active:scale-95 transition-all border ${
                 selectedOfferId === 'offer-medplus'
                   ? 'bg-primary text-on-primary border-primary'
@@ -435,13 +534,17 @@ export const MedicineDetailScreen: React.FC<MedicineDetailScreenProps> = ({
             </div>
             <div className="text-right">
               <span className="font-headline-lg text-headline-lg font-bold text-text-primary">
-                {normalizationMode === 'tab' ? '₹2.80' : '₹28.00'}
+                {normalizationMode === 'tab'
+                  ? `₹${(dynamicOffers[2].pricePerStrip / dynamicOffers[2].tabletsPerStrip).toFixed(2)}`
+                  : `₹${dynamicOffers[2].pricePerStrip.toFixed(2)}`}
               </span>
               <div className="flex items-center justify-end gap-1">
                 <span className="bg-status-warning-bg text-status-warning-text px-1 rounded font-code-tabular text-[10px] font-bold border border-status-warning-border">
-                  10-PACK
+                  VERIFIED
                 </span>
-                <p className="font-code-tabular text-[11px] text-text-muted">₹2.80/tab</p>
+                <p className="font-code-tabular text-[11px] text-text-muted">
+                  ₹{(dynamicOffers[2].pricePerStrip / dynamicOffers[2].tabletsPerStrip).toFixed(2)}/tab
+                </p>
               </div>
             </div>
           </div>
@@ -452,7 +555,7 @@ export const MedicineDetailScreen: React.FC<MedicineDetailScreenProps> = ({
               Hyper-fast 25m dispatch
             </span>
             <button
-              onClick={() => handleSelectOffer(MOLECULE_OFFERS[2])}
+              onClick={() => handleSelectOffer(dynamicOffers[2])}
               className={`px-space-sm py-1 rounded-lg font-label-sm text-label-sm font-semibold active:scale-95 transition-all border ${
                 selectedOfferId === 'offer-wellness'
                   ? 'bg-primary text-on-primary border-primary'

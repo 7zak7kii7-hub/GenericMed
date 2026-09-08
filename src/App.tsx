@@ -17,9 +17,12 @@ import { ChatPharmacistModal } from './components/modals/ChatPharmacistModal';
 import { UploadPrescriptionModal } from './components/modals/UploadPrescriptionModal';
 import { ArchitecturePRDModal } from './components/modals/ArchitecturePRDModal';
 import { AddressModal } from './components/modals/AddressModal';
+import { SosEmergencyModal } from './components/modals/SosEmergencyModal';
+import { NotificationsModal, NotificationItem } from './components/modals/NotificationsModal';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState<ScreenTab>('compare');
+  const [selectedMoleculeId, setSelectedMoleculeId] = useState<string>('comp-1');
   const [cartItems, setCartItems] = useState<CartItem[]>(INITIAL_CART_ITEMS);
   const [currentAddress, setCurrentAddress] = useState<string>(
     '#402 Palm Grove, 12th Main Indiranagar, Bengaluru 560038'
@@ -33,6 +36,42 @@ export default function App() {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isArchModalOpen, setIsArchModalOpen] = useState(false);
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  const [isSosModalOpen, setIsSosModalOpen] = useState(false);
+  const [isNotificationsModalOpen, setIsNotificationsModalOpen] = useState(false);
+
+  // Notifications State
+  const [notifications, setNotifications] = useState<NotificationItem[]>([
+    {
+      id: 'notif-1',
+      title: 'Prescription Refill Scheduled',
+      description: 'Your Metformin 500mg SR refill is due in 3 days. Generic bundle prepared.',
+      time: '10 mins ago',
+      type: 'refill',
+      read: false,
+      actionText: 'View Refill',
+      actionTab: 'prescriptions',
+    },
+    {
+      id: 'notif-2',
+      title: 'Order Dispatched (Cold-Chain Verified)',
+      description: 'Your courier has picked up Order #ORD-8921 with active temp sensor reading 4.8°C.',
+      time: '45 mins ago',
+      type: 'coldchain',
+      read: false,
+      actionText: 'Track Live',
+      actionTab: 'orders',
+    },
+    {
+      id: 'notif-3',
+      title: 'Generic Subsidy Applied',
+      description: 'You saved ₹332.00 on your recent Jan Aushadhi generic substitutions this month.',
+      time: '2 hours ago',
+      type: 'savings',
+      read: true,
+      actionText: 'See Savings',
+      actionTab: 'compare',
+    },
+  ]);
 
   // Toast Notification state
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -114,6 +153,9 @@ export default function App() {
         onOpenAddressModal={() => setIsAddressModalOpen(true)}
         onOpenArchitecture={() => setIsArchModalOpen(true)}
         onOpenArchitectureModal={() => setIsArchModalOpen(true)}
+        onOpenSosModal={() => setIsSosModalOpen(true)}
+        onOpenNotifications={() => setIsNotificationsModalOpen(true)}
+        unreadNotifications={notifications.filter((n) => !n.read).length}
         showToastMessage={showToast}
         currentAddress={currentAddress}
       />
@@ -123,8 +165,14 @@ export default function App() {
         {currentTab === 'compare' && (
           <CompareScreen
             onNavigate={setCurrentTab}
-            onSelectMoleculeDetail={(_name) => setCurrentTab('medicine-detail')}
-            onSelectMedicine={(_name) => setCurrentTab('medicine-detail')}
+            onSelectMoleculeDetail={(idOrName) => {
+              setSelectedMoleculeId(idOrName);
+              setCurrentTab('medicine-detail');
+            }}
+            onSelectMedicine={(idOrName) => {
+              setSelectedMoleculeId(idOrName);
+              setCurrentTab('medicine-detail');
+            }}
             onAddToCart={handleAddComparisonPairToCart}
             onOpenUploadPrescription={() => setIsUploadModalOpen(true)}
             onOpenUploadModal={() => setIsUploadModalOpen(true)}
@@ -136,6 +184,8 @@ export default function App() {
 
         {(currentTab === 'medicine-detail' || (currentTab as string) === 'details') && (
           <MedicineDetailScreen
+            selectedMoleculeId={selectedMoleculeId}
+            onNavigateBack={() => setCurrentTab('compare')}
             onAddToCart={handleAddToCart}
             onOpenBioModal={() => setIsBioModalOpen(true)}
             showToastMessage={showToast}
@@ -151,6 +201,7 @@ export default function App() {
             onNavigate={setCurrentTab}
             showToastMessage={showToast}
             onCheckoutSuccess={handleCheckoutSuccess}
+            currentAddress={currentAddress}
           />
         )}
 
@@ -167,7 +218,12 @@ export default function App() {
           <PrescriptionsScreen
             onOpenUpload={() => setIsUploadModalOpen(true)}
             showToastMessage={showToast}
-            onSelectMedicine={(_name) => setCurrentTab('compare')}
+            onSelectMedicine={(name) => {
+              setSelectedMoleculeId(name);
+              setCurrentTab('compare');
+            }}
+            onAddConvertedGenerics={handleAddConvertedGenerics}
+            onNavigateToCart={() => setCurrentTab('cart')}
           />
         )}
       </main>
@@ -230,6 +286,25 @@ export default function App() {
         onClose={() => setIsAddressModalOpen(false)}
         onSelectAddress={setCurrentAddress}
         currentAddress={currentAddress}
+      />
+
+      <SosEmergencyModal
+        isOpen={isSosModalOpen}
+        onClose={() => setIsSosModalOpen(false)}
+        showToastMessage={showToast}
+      />
+
+      <NotificationsModal
+        isOpen={isNotificationsModalOpen}
+        onClose={() => setIsNotificationsModalOpen(false)}
+        notifications={notifications}
+        onMarkAllRead={() =>
+          setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
+        }
+        onActionClick={(tab) => {
+          setCurrentTab(tab);
+          setIsNotificationsModalOpen(false);
+        }}
       />
     </div>
   );

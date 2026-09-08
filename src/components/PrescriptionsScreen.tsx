@@ -1,22 +1,49 @@
 import React, { useState } from 'react';
 import { SAVED_PRESCRIPTIONS } from '../data/mockData';
-import { PrescriptionRecord } from '../types';
+import { PrescriptionRecord, CartItem } from '../types';
 
 interface PrescriptionsScreenProps {
   onOpenUpload: () => void;
   showToastMessage: (msg: string) => void;
   onSelectMedicine: (name: string) => void;
+  onAddConvertedGenerics?: (items: CartItem[]) => void;
+  onNavigateToCart?: () => void;
 }
 
 export const PrescriptionsScreen: React.FC<PrescriptionsScreenProps> = ({
   onOpenUpload,
   showToastMessage,
   onSelectMedicine,
+  onAddConvertedGenerics,
+  onNavigateToCart,
 }) => {
   const [prescriptions, setPrescriptions] = useState<PrescriptionRecord[]>(SAVED_PRESCRIPTIONS);
+  const [selectedRxForPreview, setSelectedRxForPreview] = useState<PrescriptionRecord | null>(null);
 
   const handleOrderAllGenerics = (rx: PrescriptionRecord) => {
-    showToastMessage(`Added generic equivalents from ${rx.id} to cart!`);
+    const newItems: CartItem[] = rx.medicines.map((m, idx) => ({
+      id: `rx-item-${rx.id}-${idx}-${Date.now()}`,
+      name: m.genericEquivalent,
+      category: 'PRESCRIPTION GENERIC',
+      pharmacyName: 'Apollo MedPlus Dispensary Hub',
+      price: 24.00 + idx * 8,
+      mrp: 65.00 + idx * 20,
+      pricePerUnit: `₹${(2.40 + idx * 0.8).toFixed(2)} / tab`,
+      quantity: 1,
+      packDetail: 'Strip of 10 Tablets',
+      batchNumber: `Batch #${rx.id}-GEN${idx + 1}`,
+      savingsAmount: 41.00 + idx * 12,
+      imageUrl:
+        'https://lh3.googleusercontent.com/aida-public/AB6AXuA0P1UtMCeQiNx2w-bcWeCUFFpzLF24iIe3Cp14GAZ5EB13ymClblYwtJWU7ByhbebjjxryBDdp4OmJXRHka7igtzWaMWtXv9me9YlSXChLWYZfW_-jsUyR8HjK1C0LGpXemLMNThRUpKBpKU7eVMukONcRCHPBm7Kf626g4YQgmyLof3wdsPQ611VG3SgU4zHJmczu85b5JETLuuRKe8vqJ9obmmoClxrwGcEvtgTr5P-8gwiWM459Ow',
+    }));
+
+    if (onAddConvertedGenerics) {
+      onAddConvertedGenerics(newItems);
+    }
+    const totalSavings = newItems.reduce((acc, i) => acc + i.savingsAmount, 0);
+    showToastMessage(
+      `Added ${newItems.length} generic equivalents from ${rx.id} to cart! Total savings: ₹${totalSavings}`
+    );
   };
 
   return (
@@ -121,19 +148,31 @@ export const PrescriptionsScreen: React.FC<PrescriptionsScreenProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-space-xs border-t border-border-subtle/50 mt-1">
+            <div className="flex items-center justify-between pt-space-xs border-t border-border-subtle/50 mt-1 flex-wrap gap-2">
               <span className="font-body-sm text-text-muted flex items-center gap-1">
                 <span className="material-symbols-outlined text-[16px] text-secondary">
                   verified_user
                 </span>
                 Digitized by Registered Pharmacist
               </span>
-              <button
-                onClick={() => handleOrderAllGenerics(rx)}
-                className="px-space-md py-1.5 rounded-lg bg-primary text-on-primary font-label-sm font-bold hover:bg-brand-deep active:scale-95 transition-all shadow-xs"
-              >
-                Reorder Generic Bundle
-              </button>
+              <div className="flex items-center gap-2">
+                {onNavigateToCart && (
+                  <button
+                    onClick={onNavigateToCart}
+                    className="px-3 py-1.5 rounded-lg bg-surface-subtle text-primary font-label-sm font-semibold hover:bg-surface-container active:scale-95 text-[12px] border border-border-subtle flex items-center gap-1"
+                  >
+                    <span className="material-symbols-outlined text-[15px]">shopping_cart</span>
+                    <span>View Cart</span>
+                  </button>
+                )}
+                <button
+                  onClick={() => handleOrderAllGenerics(rx)}
+                  className="px-space-md py-1.5 rounded-lg bg-primary text-on-primary font-label-sm font-bold hover:bg-brand-deep active:scale-95 transition-all shadow-xs flex items-center gap-1"
+                >
+                  <span className="material-symbols-outlined text-[16px]">add_shopping_cart</span>
+                  <span>Reorder Generic Bundle</span>
+                </button>
+              </div>
             </div>
           </div>
         ))}

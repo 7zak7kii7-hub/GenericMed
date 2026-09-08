@@ -28,6 +28,10 @@ export const CompareScreen: React.FC<CompareScreenProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [isVoiceListening, setIsVoiceListening] = useState(false);
   const [selectedPill, setSelectedPill] = useState<string | null>(null);
+  const [monthlySpend, setMonthlySpend] = useState<number>(2500);
+
+  const genericMonthlySpend = Math.round(monthlySpend * 0.32);
+  const annualSavings = (monthlySpend - genericMonthlySpend) * 12;
 
   const handleSelectMolecule = (idOrName: string) => {
     if (onSelectMoleculeDetail) {
@@ -249,6 +253,63 @@ export const CompareScreen: React.FC<CompareScreenProps> = ({
         </div>
       </div>
 
+      {/* Interactive Annual Household Generic Savings Calculator */}
+      <div className="bg-surface-container-lowest rounded-xl shadow-sm p-space-base border border-border-subtle flex flex-col gap-space-sm">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-space-xs">
+            <span className="material-symbols-outlined text-primary text-[20px]">calculate</span>
+            <h3 className="font-headline-sm text-headline-sm text-text-primary font-bold">
+              Household Generic Savings Estimator
+            </h3>
+          </div>
+          <span className="text-[11px] font-bold text-status-success-text px-2 py-0.5 rounded bg-status-success-bg border border-status-success-border">
+            Avg 68% Lower
+          </span>
+        </div>
+
+        <p className="text-body-sm text-text-muted">
+          Estimate how much you save on chronic prescriptions (BP, Diabetes, Cholesterol) by switching from branded marketing formulations to CDSCO certified generics.
+        </p>
+
+        <div className="bg-surface-subtle p-3 rounded-xl border border-border-subtle flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <span className="text-label-sm font-bold text-text-secondary">
+              Monthly Branded Spend:
+            </span>
+            <span className="font-code-tabular text-headline-sm font-bold text-text-primary">
+              ₹{monthlySpend.toLocaleString('en-IN')}
+            </span>
+          </div>
+
+          <input
+            type="range"
+            min="500"
+            max="15000"
+            step="250"
+            value={monthlySpend}
+            onChange={(e) => setMonthlySpend(Number(e.target.value))}
+            className="w-full accent-primary cursor-pointer h-2 bg-slate-200 rounded-lg"
+          />
+
+          <div className="grid grid-cols-2 gap-2 pt-1 border-t border-border-subtle/60 text-center">
+            <div className="p-2 rounded-lg bg-surface-canvas border border-border-subtle">
+              <span className="text-[11px] text-text-muted block">Generic Med Equivalent</span>
+              <span className="font-code-tabular text-[15px] font-bold text-primary">
+                ₹{genericMonthlySpend.toLocaleString('en-IN')}/mo
+              </span>
+            </div>
+            <div className="p-2 rounded-lg bg-status-success-bg border border-status-success-border">
+              <span className="text-[11px] text-status-success-text block font-medium">
+                Annual Household Savings
+              </span>
+              <span className="font-code-tabular text-[15px] font-bold text-status-success-text">
+                ₹{annualSavings.toLocaleString('en-IN')}/yr
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Popular Comparison Matchups (High Density Cards) */}
       <div className="flex flex-col gap-space-sm">
         <div className="flex items-center justify-between">
@@ -300,7 +361,7 @@ export const CompareScreen: React.FC<CompareScreenProps> = ({
 
               <div
                 className="grid grid-cols-2 gap-space-sm items-stretch cursor-pointer"
-                onClick={() => handleSelectMolecule(pair.detailId || 'CAN-MOL-1049')}
+                onClick={() => handleSelectMolecule(pair.id)}
                 title="Click to view full scientific and pharmacy breakdown"
               >
                 {/* Brand Side */}
@@ -370,7 +431,7 @@ export const CompareScreen: React.FC<CompareScreenProps> = ({
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => handleSelectMolecule(pair.detailId || 'CAN-MOL-1049')}
+                    onClick={() => handleSelectMolecule(pair.id)}
                     className="px-2 py-1 text-[11px] font-label-sm text-primary hover:underline font-semibold"
                   >
                     Compare Hubs

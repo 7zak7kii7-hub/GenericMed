@@ -8,6 +8,7 @@ interface CartScreenProps {
   onNavigate: (tab: ScreenTab) => void;
   showToastMessage: (msg: string) => void;
   onCheckoutSuccess: () => void;
+  currentAddress?: string;
 }
 
 export const CartScreen: React.FC<CartScreenProps> = ({
@@ -17,10 +18,14 @@ export const CartScreen: React.FC<CartScreenProps> = ({
   onNavigate,
   showToastMessage,
   onCheckoutSuccess,
+  currentAddress = '#402 Palm Grove, 12th Main Indiranagar, Bengaluru 560038',
 }) => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'upi' | 'card' | 'netbanking' | 'cod'>('upi');
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(585); // 09:45
+  const [promoCode, setPromoCode] = useState('');
+  const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
+  const [promoDiscount, setPromoDiscount] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -35,12 +40,38 @@ export const CartScreen: React.FC<CartScreenProps> = ({
     return `${mins < 10 ? '0' + mins : mins}:${secs < 10 ? '0' + secs : secs}`;
   };
 
+  const handleApplyPromo = (e: React.FormEvent) => {
+    e.preventDefault();
+    const code = promoCode.trim().toUpperCase();
+    if (!code) return;
+
+    if (code === 'JANAUSHADHI15' || code === 'SAVE15') {
+      setAppliedPromo(code);
+      setPromoDiscount(15);
+      showToastMessage(`Promo code ${code} applied! ₹15.00 discount added.`);
+    } else if (code === 'FREESHIP') {
+      setAppliedPromo(code);
+      setPromoDiscount(25);
+      showToastMessage('Promo code FREESHIP applied! Cold-chain delivery fee waived.');
+    } else {
+      showToastMessage('Invalid or expired coupon code. Try "JANAUSHADHI15" or "FREESHIP"');
+    }
+  };
+
+  const handleRemovePromo = () => {
+    setAppliedPromo(null);
+    setPromoDiscount(0);
+    setPromoCode('');
+    showToastMessage('Promo code removed');
+  };
+
   const aggregatedSubtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const mrpTotal = cartItems.reduce((acc, item) => acc + item.mrp * item.quantity, 0);
   const moleculeSavings = mrpTotal - aggregatedSubtotal;
-  const coldChainFee = aggregatedSubtotal > 0 ? 25.0 : 0.0;
+  const coldChainFee = aggregatedSubtotal > 0 ? (appliedPromo === 'FREESHIP' ? 0.0 : 25.0) : 0.0;
   const platformFee = aggregatedSubtotal > 0 ? 5.0 : 0.0;
-  const totalPayable = aggregatedSubtotal + coldChainFee + platformFee;
+  const rawTotal = aggregatedSubtotal + coldChainFee + platformFee - (appliedPromo === 'FREESHIP' ? 0 : promoDiscount);
+  const totalPayable = Math.max(0, rawTotal);
 
   const freeDeliveryThreshold = 99;
   const amountToFreeDelivery = Math.max(0, freeDeliveryThreshold - aggregatedSubtotal);
@@ -243,7 +274,7 @@ export const CartScreen: React.FC<CartScreenProps> = ({
             </span>
           </div>
           <p className="font-body-sm text-body-sm text-text-muted leading-snug truncate pt-0.5">
-            #402 Palm Grove, 12th Main Indiranagar, Bengaluru 560038
+            {currentAddress}
           </p>
         </div>
 
@@ -255,6 +286,65 @@ export const CartScreen: React.FC<CartScreenProps> = ({
             Priority Dispatch: <strong className="text-text-primary font-bold">Today by 4:30 PM</strong>
           </span>
         </div>
+      </div>
+
+      {/* Jan Aushadhi & Generic Subsidy Coupon Section */}
+      <div className="rounded-xl bg-surface-card p-space-md flex flex-col gap-space-xs shadow-sm border border-border-subtle">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-primary text-[18px]">sell</span>
+            <span className="font-headline-sm text-headline-sm text-text-primary font-bold">
+              Government / Health Subsidy Voucher
+            </span>
+          </div>
+          {appliedPromo && (
+            <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-status-success-bg text-status-success-text border border-status-success-border">
+              APPLIED
+            </span>
+          )}
+        </div>
+
+        {appliedPromo ? (
+          <div className="flex items-center justify-between p-2.5 rounded-lg bg-status-success-bg/40 border border-status-success-border mt-1">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-status-success-text text-[18px]">
+                check_circle
+              </span>
+              <div className="flex flex-col">
+                <span className="font-label-md font-bold text-text-primary font-code-tabular">
+                  {appliedPromo}
+                </span>
+                <span className="text-[11px] text-status-success-text font-medium">
+                  {appliedPromo === 'FREESHIP'
+                    ? 'Free cold-chain delivery applied (-₹25.00)'
+                    : `₹${promoDiscount}.00 generic subsidy discount applied`}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={handleRemovePromo}
+              className="text-[12px] text-status-danger-text font-bold hover:underline px-2 py-1"
+            >
+              Remove
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleApplyPromo} className="flex gap-2 mt-1">
+            <input
+              type="text"
+              placeholder="e.g. JANAUSHADHI15 or FREESHIP"
+              value={promoCode}
+              onChange={(e) => setPromoCode(e.target.value)}
+              className="flex-1 px-3 py-2 bg-surface-canvas rounded-lg text-body-sm border border-border-subtle focus:outline-none focus:ring-1 focus:ring-primary uppercase font-code-tabular"
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 bg-primary text-on-primary font-label-md font-bold rounded-lg text-[13px] hover:bg-brand-deep active:scale-95 transition-all shadow-xs"
+            >
+              Apply
+            </button>
+          </form>
+        )}
       </div>
 
       {/* Free Delivery Goal Banner */}
@@ -339,6 +429,15 @@ export const CartScreen: React.FC<CartScreenProps> = ({
               ₹{platformFee.toFixed(2)}
             </span>
           </div>
+          {appliedPromo && promoDiscount > 0 && appliedPromo !== 'FREESHIP' && (
+            <div className="flex items-center justify-between text-status-success-text font-medium">
+              <span className="flex items-center gap-1">
+                <span className="material-symbols-outlined text-[16px]">sell</span>
+                Subsidy Voucher ({appliedPromo})
+              </span>
+              <span className="font-code-tabular font-bold">-₹{promoDiscount.toFixed(2)}</span>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-between pt-space-sm mt-space-2xs bg-surface-subtle p-space-sm rounded-lg border border-border-subtle">
