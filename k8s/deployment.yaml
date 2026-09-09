@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: genericmed-core-deployment
+  namespace: healthcare-production
+  labels:
+    app: genericmed-core
+    tier: api
+    phase: production-v5
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: genericmed-core
+  template:
+    metadata:
+      labels:
+        app: genericmed-core
+    spec:
+      containers:
+        - name: genericmed-api
+          image: genericmed/platform:0.8.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+              name: http-traffic
+          env:
+            - name: NODE_ENV
+              value: 'production'
+            - name: PORT
+              value: '5000'
+            - name: DATABASE_URL
+              value: 'file:/app/data/prod.db'
+          resources:
+            requests:
+              cpu: '250m'
+              memory: '512Mi'
+            limits:
+              cpu: '1000m'
+              memory: '1024Mi'
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/metrics
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 2
+          volumeMounts:
+            - name: persistent-storage
+              mountPath: /app/data
+      volumes:
+        - name: persistent-storage
+          persistentVolumeClaim:
+            claimName: genericmed-db-pvc

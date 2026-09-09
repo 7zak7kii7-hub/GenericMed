@@ -1,0 +1,165 @@
+// GenericMed Prisma Schema
+// CDSCO-compliant pharmaceutical commerce & generic substitution engine
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(cuid())
+  phone         String         @unique
+  name          String
+  email         String?
+  role          String         @default("PATIENT") // PATIENT, PHARMACIST, DELIVERY_AGENT, ADMIN
+  address       String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  prescriptions Prescription[]
+  orders        Order[]
+  auditLogs     AuditLog[]
+}
+
+model ActiveSalt {
+  id                 String     @id // e.g. "PARA-650-IP", "AMOX-CLAV-625"
+  chemicalName       String
+  standard           String     // "Indian Pharmacopoeia (IP)", "USP", "BP"
+  therapeuticClass   String
+  dissolutionProfile String?
+  medicines          Medicine[]
+}
+
+model Medicine {
+  id                  String             @id @default(cuid())
+  formulaId           String
+  tradeName           String
+  manufacturer        String
+  isGeneric           Boolean            @default(false)
+  isScheduleH1        Boolean            @default(false)
+  mrp                 Float
+  sellingPrice        Float
+  dosageForm          String             // "Tablet", "Capsule", "Syrup", "Suspension", "Injection"
+  unitsPerPack        Int                @default(10)
+  unitCost            Float              // Normalized price per tablet / per ml
+  packDetail          String?            // "Strip of 10 Tablets", "Bottle of 60ml"
+  imageUrl            String?
+  activeSalt          ActiveSalt         @relation(fields: [formulaId], references: [id])
+  brandedMappings     BrandGenericMap[]  @relation("BrandedMedicine")
+  genericMappings     BrandGenericMap[]  @relation("GenericMedicine")
+  inventory           PharmacyInventory[]
+  orderItems          OrderItem[]
+  createdAt           DateTime           @default(now())
+}
+
+model BrandGenericMap {
+  id                  String   @id @default(cuid())
+  brandMedicineId     String
+  genericMedicineId   String
+  bioequivalenceScore Float    @default(99.4) // Bioavailability dissolution percentage match
+  savingsPercent      Int      @default(70)
+  savingsRupees       Float    @default(0.0)
+  verifiedTag         String   @default("100% Bio-identical molecule composition")
+  brandMedicine       Medicine @relation("BrandedMedicine", fields: [brandMedicineId], references: [id])
+  genericMedicine     Medicine @relation("GenericMedicine", fields: [genericMedicineId], references: [id])
+
+  @@unique([brandMedicineId, genericMedicineId])
+}
+
+model Pharmacy {
+  id           String              @id @default(cuid())
+  name         String
+  licenseNo    String              // e.g. "DL-KA-2024-8849" (Form 20B/21B CDSCO)
+  locality     String
+  latitude     Float
+  longitude    Float
+  rating       Float               @default(4.8)
+  phone        String?
+  inventory    PharmacyInventory[]
+  orders       Order[]
+  createdAt    DateTime            @default(now())
+}
+
+model PharmacyInventory {
+  id           String    @id @default(cuid())
+  pharmacyId   String
+  medicineId   String
+  batchNumber  String    // e.g. "GEN-2026-09"
+  expiryDate   DateTime
+  stockUnits   Int       @default(100)
+  sellingPrice Float
+  pharmacy     Pharmacy  @relation(fields: [pharmacyId], references: [id])
+  medicine     Medicine  @relation(fields: [medicineId], references: [id])
+
+  @@unique([pharmacyId, medicineId, batchNumber])
+}
+
+model Prescription {
+  id                 String   @id @default(cuid()) // e.g. "RX-2026-081"
+  userId             String?
+  doctorName         String
+  clinic             String
+  doctorRegNo        String?  // CDSCO / State Medical Council Registration No.
+  date               String
+  status             String   @default("Verified & Digitized") // "Verified & Digitized", "Analyzing AI OCR", "Order Ready"
+  prescriptionImage  String?
+  extractedJson      String?  // JSON stringified extraction result from Gemini
+  confidenceScore    Float?   @default(0.95)
+  needsManualReview  Boolean  @default(false)
+  user               User?    @relation(fields: [userId], references: [id])
+  orders             Order[]
+  createdAt          DateTime @default(now())
+}
+
+model Order {
+  id              String         @id @default(cuid()) // e.g. "ORD-8921"
+  userId          String?
+  pharmacyId      String?
+  prescriptionId  String?
+  status          String         @default("CONFIRMED") // CONFIRMED, BATCH_VERIFIED, DISPATCHED, DELIVERED
+  deliveryOtp     String         @default("4892")
+  totalAmount     Float
+  totalSavings    Float
+  deliveryAddress String
+  coldChainSla    Boolean        @default(true)
+  user            User?          @relation(fields: [userId], references: [id])
+  pharmacy        Pharmacy?      @relation(fields: [pharmacyId], references: [id])
+  prescription    Prescription?  @relation(fields: [prescriptionId], references: [id])
+  items           OrderItem[]
+  coldChainLogs   ColdChainLog[]
+  createdAt       DateTime       @default(now())
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String
+  medicineId  String
+  quantity    Int      @default(1)
+  unitPrice   Float
+  mrp         Float
+  savings     Float
+  order       Order    @relation(fields: [orderId], references: [id])
+  medicine    Medicine @relation(fields: [medicineId], references: [id])
+}
+
+model ColdChainLog {
+  id                 String   @id @default(cuid())
+  orderId            String
+  recordedAt         DateTime @default(now())
+  temperatureCelsius Float    // e.g. 4.8 or 21.2
+  isWithinSla        Boolean  @default(true)
+  order              Order    @relation(fields: [orderId], references: [id])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String   // "SCHEDULE_H1_ACCESSED", "PRESCRIPTION_VERIFIED", "ORDER_DISPATCHED"
+  details    String
+  ipAddress  String?
+  timestamp  DateTime @default(now())
+  user       User?    @relation(fields: [userId], references: [id])
+}
